@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">公考头条</string>
+    <string name="exception_opt">服务器数据异常</string>
+</resources>
