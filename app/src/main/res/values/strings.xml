@@ -1,7 +1,11 @@
 <resources>
     <string name="app_name">公考头条</string>
     <string name="exception_opt">服务器数据异常</string>
+    <string name="quit_again">再按一次退出</string>
 
+    <string name="main">首页</string>
+    <string name="officer">公考帮</string>
+    <string name="look">关注</string>
 
     <string name="placeHolder">placeHolder</string>
     <string name="seekbar_add">+</string>
@@ -13,4 +17,7 @@
     <string name="cancel">取消</string>
     <string name="msg_camera_framework_bug">抱歉，Android相机出现问题。您可能需要重启设备。</string>
     <string name="button_ok">确定</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

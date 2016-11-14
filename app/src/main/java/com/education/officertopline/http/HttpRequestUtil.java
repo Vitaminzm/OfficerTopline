@@ -1,7 +1,7 @@
 package com.education.officertopline.http;
 
 
-import com.education.officertopline.app.AppConfigFile;
+import com.education.officertopline.app.AppManager;
 import com.education.officertopline.app.ConstantData;
 
 import java.util.Map;
@@ -25,7 +25,7 @@ public class HttpRequestUtil {
 	 * @return
 	 */
 	private static String getUrl(String url) {
-		return ConstantData.IP_HOST_CONFIG_PREFIX + AppConfigFile.host_config +"/"+ url;
+		return ConstantData.IP_HOST_CONFIG_PREFIX + AppManager.host_config +"/"+ url;
 	}
 
 	private HttpRequestUtil() {

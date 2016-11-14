@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup
+    android:id="@+id/mian_rgs"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:orientation="horizontal">
+
+    <!-- .9图片  selector   shape  -->
+    <RadioButton
+        android:id="@+id/main_home_r"
+        style="@style/FooterRgsStyle"
+        android:drawableTop="@mipmap/ic_launcher"
+        android:text="@string/main"
+        />
+
+    <RadioButton
+        android:id="@+id/main_officer_r"
+        style="@style/FooterRgsStyle"
+        android:drawableTop="@mipmap/ic_launcher"
+        android:text="@string/officer"/>
+
+    <RadioButton
+        android:id="@+id/main_look_rb"
+        style="@style/FooterRgsStyle"
+        android:drawableTop="@mipmap/ic_launcher"
+        android:text="@string/look"/>
+
+
+</RadioGroup>

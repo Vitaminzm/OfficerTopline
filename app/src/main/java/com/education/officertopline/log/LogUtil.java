@@ -1,6 +1,5 @@
 package com.education.officertopline.log;
 
-import com.education.officertopline.app.AppConfigFile;
 import com.socks.library.KLog;
 
 /**
