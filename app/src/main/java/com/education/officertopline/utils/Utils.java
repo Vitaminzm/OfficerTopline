@@ -145,29 +145,6 @@ public class Utils {
         return bbt;
     }
 
-    /**
-     * 银行卡输入账户隐藏处理
-     *
-     * @param cardcodetemp
-     *            bankcode
-     * @return
-     */
-    public static String getbankcardcode(String cardcodetemp) {
-        LogUtil.i("lgg", "cardcode===" + cardcodetemp.trim() + "=====");
-        try {
-            if (cardcodetemp != null) {
-                String cardcode = cardcodetemp.trim();
-                if (cardcode.length() > 10) {
-                    return cardcode.substring(0, 5) + "  ******  "
-                            + cardcode.substring(cardcode.length() - 4, cardcode.length());
-                }
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     /**
      *
@@ -419,43 +396,6 @@ public class Utils {
         }
     }
 
-    /**
-     * 15字符长度 +""
-     *
-     * @author CWI-APST
-     * @param barcodeText
-     * @return
-     */
-    public static String Cutbarcode(String barcodeText) {
-        if (barcodeText.length() > 15) {
-            return barcodeText.substring(0, 15);
-        } else {
-            for (int i = 0; i < (15 - barcodeText.length()); i++) {
-                barcodeText += " ";
-            }
-            return barcodeText;
-        }
-    }
-
-    /**
-     * 保留15字符 活动
-     *
-     * @param printText
-     * @return
-     */
-    public static String CutPrintutilsactivites(String printText, int size) {
-        try {
-            if (printText.length() > size) {
-                return printText.substring(0, size);
-            } else {
-                return printText;
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return "";
-    }
 
     /**
      * 判断该网页是否含有标签<div></div>
