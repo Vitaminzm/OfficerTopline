@@ -1,6 +1,8 @@
 package com.education.officertopline.fragment;
 
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.education.officertopline.R;
+import com.education.officertopline.utils.Utils;
 import com.shizhefei.view.indicator.IndicatorViewPager;
 import com.shizhefei.view.indicator.ScrollIndicatorView;
 import com.shizhefei.view.indicator.slidebar.ColorBar;
@@ -18,6 +21,7 @@ import com.shizhefei.view.indicator.transition.OnTransitionTextListener;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import okhttp3.internal.Util;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -76,7 +80,7 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public int getCount() {
-            return 10;
+            return 2;
         }
 
         @Override
@@ -85,7 +89,12 @@ public class HomeFragment extends BaseFragment {
                 convertView = inflate.inflate(R.layout.view_tab_top, container, false);
             }
             TextView textView = (TextView) convertView;
-            textView.setText("1" + " " + position);
+            textView.setText("热门" + " " + position);
+            int witdh = getTextWidth(textView);
+            int padding = Utils.dip2px(getActivity().getApplicationContext(), 8f);
+            //因为wrap的布局 字体大小变化会导致textView大小变化产生抖动，这里通过设置textView宽度就避免抖动现象
+            //1.3f是根据上面字体大小变化的倍数1.3f设置
+            textView.setWidth((int) (witdh * 1.3f) + padding);
             return convertView;
         }
 
@@ -97,6 +106,18 @@ public class HomeFragment extends BaseFragment {
             bundle.putInt(RecommendFragment.INTENT_INT_POSITION, position);
             mainFragment.setArguments(bundle);
             return mainFragment;
+        }
+
+        private int getTextWidth(TextView textView) {
+            if (textView == null) {
+                return 0;
+            }
+            Rect bounds = new Rect();
+            String text = textView.getText().toString();
+            Paint paint = textView.getPaint();
+            paint.getTextBounds(text, 0, text.length(), bounds);
+            int width = bounds.left + bounds.width();
+            return width;
         }
     }
 }
