@@ -60,9 +60,9 @@ public class MainActivity extends FragmentActivity implements FragmentTabUtils.O
     private ArrayList<Fragment> fragments = new ArrayList<>();
 
     protected void initData() {
-        fragments.add(new HomeFragment());
-        fragments.add(new HomeFragment());
-        fragments.add(new HomeFragment());
+        fragments.add(HomeFragment.newInstance());
+        fragments.add(HomeFragment.newInstance());
+        fragments.add(HomeFragment.newInstance());
         new FragmentTabUtils(getSupportFragmentManager(), fragments, R.id.fragment_container, mian_rgs, this);
     }
 

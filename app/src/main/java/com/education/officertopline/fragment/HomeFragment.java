@@ -1,99 +1,102 @@
 package com.education.officertopline.fragment;
 
-import android.app.Activity;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.education.officertopline.R;
+import com.shizhefei.view.indicator.IndicatorViewPager;
+import com.shizhefei.view.indicator.ScrollIndicatorView;
+import com.shizhefei.view.indicator.slidebar.ColorBar;
+import com.shizhefei.view.indicator.transition.OnTransitionTextListener;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link HomeFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class HomeFragment extends BaseFragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    @Bind(R.id.home_indicator)ScrollIndicatorView home_indicator;
+    @Bind(R.id.home_viewPager)ViewPager home_viewPager;
 
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static HomeFragment newInstance(String param1, String param2) {
+    private IndicatorViewPager indicatorViewPager;
+    private LayoutInflater inflate;
+    public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     public HomeFragment() {
-        // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        View mRootView = inflater.inflate(R.layout.fragment_home, container, false);
+        ButterKnife.bind(this, mRootView);//绑定framgent
+        initView(mRootView);
+        return mRootView;
     }
 
+    private void initView(View view) {
+        inflate = LayoutInflater.from(getActivity().getApplicationContext());
+        float unSelectSize = 12;
+        float selectSize = unSelectSize * 1.3f;
+        home_indicator.setOnTransitionListener(new OnTransitionTextListener().setColor(0xFF2196F3, Color.GRAY).setSize(selectSize, unSelectSize));
+        home_indicator.setScrollBar(new ColorBar(getActivity().getApplicationContext(), 0xFF2196F3, 4));
 
+        home_viewPager.setOffscreenPageLimit(3);
+        indicatorViewPager = new IndicatorViewPager(home_indicator, home_viewPager);
+        indicatorViewPager.setAdapter(new MyAdapter(getChildFragmentManager()));
+    }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
+    public void onDestroy() {
+        super.onDestroy();
+        ButterKnife.unbind(this);//解绑
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
+    private class MyAdapter extends IndicatorViewPager.IndicatorFragmentPagerAdapter {
 
+        public MyAdapter(FragmentManager fragmentManager) {
+            super(fragmentManager);
+        }
+
+        @Override
+        public int getCount() {
+            return 10;
+        }
+
+        @Override
+        public View getViewForTab(int position, View convertView, ViewGroup container) {
+            if (convertView == null) {
+                convertView = inflate.inflate(R.layout.view_tab_top, container, false);
+            }
+            TextView textView = (TextView) convertView;
+            textView.setText("1" + " " + position);
+            return convertView;
+        }
+
+        @Override
+        public Fragment getFragmentForPage(int position) {
+            RecommendFragment mainFragment = new RecommendFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString(RecommendFragment.INTENT_STRING_TABNAME, "haha");
+            bundle.putInt(RecommendFragment.INTENT_INT_POSITION, position);
+            mainFragment.setArguments(bundle);
+            return mainFragment;
+        }
     }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
-    }
-
 }

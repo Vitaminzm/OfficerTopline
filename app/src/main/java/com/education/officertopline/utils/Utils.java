@@ -16,8 +16,6 @@ import android.telephony.TelephonyManager;
 
 import com.education.officertopline.log.LogUtil;
 
-import org.apache.http.conn.util.InetAddressUtils;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -599,9 +597,9 @@ public class Utils {
                 List<InetAddress> ialist = Collections.list(ni.getInetAddresses());
                 for (InetAddress address : ialist)
                 {
-                    if (!address.isLoopbackAddress() && InetAddressUtils.isIPv4Address(ipv4 = address.getHostAddress()))
+                    if (!address.isLoopbackAddress())
                     {
-                        return ipv4;
+                        return address.getHostAddress();
                     }
                 }
             }

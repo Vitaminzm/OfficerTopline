@@ -1,6 +1,7 @@
 package com.education.officertopline.log;
 
-import com.socks.library.KLog;
+
+import com.education.officertopline.app.MyApplication;
 
 /**
  * 日志工具类 simple introduction
@@ -14,42 +15,52 @@ import com.socks.library.KLog;
  */
 public class LogUtil {
 	public static void v(String tag, String msg) {
-			KLog.v(tag, msg);
+		if (MyApplication.isDebug)
+			android.util.Log.v(tag, msg);
 	}
 
-	public static void v(String msg) {
-			KLog.v(msg);
+	public static void v(String tag, String msg, Throwable t) {
+		if (MyApplication.isDebug)
+			android.util.Log.v(tag, msg, t);
 	}
 
 	public static void d(String tag, String msg) {
-			KLog.d(tag, msg);
+		if (MyApplication.isDebug)
+			android.util.Log.d(tag, msg);
 	}
 
-	public static void d(String msg) {
-		KLog.d(msg);
+	public static void d(String tag, String msg, Throwable t) {
+		if (MyApplication.isDebug)
+			android.util.Log.d(tag, msg, t);
 	}
 
 	public static void i(String tag, String msg) {
-		KLog.i(tag, msg);
+		if (MyApplication.isDebug)
+			android.util.Log.i(tag, msg);
 	}
 
-	public static void i(String msg) {
-		KLog.i(msg);
+	public static void i(String tag, String msg, Throwable t) {
+		if (MyApplication.isDebug)
+			android.util.Log.i(tag, msg, t);
 	}
 
 	public static void w(String tag, String msg) {
-			KLog.w(tag, msg);
+		if (MyApplication.isDebug)
+			android.util.Log.w(tag, msg);
 	}
 
-	public static void w(String msg) {
-			KLog.w(msg);
+	public static void w(String tag, String msg, Throwable t) {
+		if (MyApplication.isDebug)
+			android.util.Log.w(tag, msg, t);
 	}
 
 	public static void e(String tag, String msg) {
-		KLog.e(tag, msg);
+		if (MyApplication.isDebug)
+			android.util.Log.e(tag, msg);
 	}
 
-	public static void e(String msg) {
-		KLog.e(msg);
+	public static void e(String tag, String msg, Throwable t) {
+		if (MyApplication.isDebug)
+			android.util.Log.e(tag, msg, t);
 	}
 }
