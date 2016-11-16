@@ -4,24 +4,31 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.education.officertopline.R;
+import com.education.officertopline.utils.ToastUtils;
 import com.education.officertopline.utils.Utils;
+import com.shizhefei.fragment.LazyFragment;
 import com.shizhefei.view.indicator.IndicatorViewPager;
 import com.shizhefei.view.indicator.ScrollIndicatorView;
 import com.shizhefei.view.indicator.slidebar.ColorBar;
 import com.shizhefei.view.indicator.transition.OnTransitionTextListener;
 
+import java.util.ArrayList;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import okhttp3.internal.Util;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,9 +41,12 @@ public class HomeFragment extends BaseFragment {
 
     @Bind(R.id.home_indicator)ScrollIndicatorView home_indicator;
     @Bind(R.id.home_viewPager)ViewPager home_viewPager;
+    @Bind(R.id.image_add)ImageView image_add;
 
     private IndicatorViewPager indicatorViewPager;
     private LayoutInflater inflate;
+    private ArrayList<LazyFragment> viewPagerdatas;
+
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
         return fragment;
@@ -44,6 +54,23 @@ public class HomeFragment extends BaseFragment {
 
     public HomeFragment() {
     }
+
+    public Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case ToastUtils.TOAST_WHAT:
+                    ToastUtils.showtaostbyhandler(getActivity(), msg);
+                    break;
+
+                case 2:
+
+                    break;
+
+                default:
+                    break;
+            }
+        };
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,15 +82,32 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void initView(View view) {
+        image_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ToastUtils.sendtoastbyhandler(handler,"dianjiale ");
+            }
+        });
         inflate = LayoutInflater.from(getActivity().getApplicationContext());
         float unSelectSize = 12;
         float selectSize = unSelectSize * 1.3f;
         home_indicator.setOnTransitionListener(new OnTransitionTextListener().setColor(0xFF2196F3, Color.GRAY).setSize(selectSize, unSelectSize));
         home_indicator.setScrollBar(new ColorBar(getActivity().getApplicationContext(), 0xFF2196F3, 4));
 
-        home_viewPager.setOffscreenPageLimit(3);
+
+        viewPagerdatas=new ArrayList<>();
+        int i = 0;
+        for (i= 0; i<10;i++){
+            RecommendFragment mainFragment = new RecommendFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString(RecommendFragment.INTENT_STRING_TABNAME, "haha");
+            bundle.putInt(RecommendFragment.INTENT_INT_POSITION, i);
+            mainFragment.setArguments(bundle);
+            viewPagerdatas.add(mainFragment);
+        }
+        home_viewPager.setOffscreenPageLimit(viewPagerdatas.size());
         indicatorViewPager = new IndicatorViewPager(home_indicator, home_viewPager);
-        indicatorViewPager.setAdapter(new MyAdapter(getChildFragmentManager()));
+        indicatorViewPager.setAdapter(new MyAdapter(getChildFragmentManager(),viewPagerdatas));
     }
 
     @Override
@@ -72,15 +116,21 @@ public class HomeFragment extends BaseFragment {
         ButterKnife.unbind(this);//解绑
     }
 
-    private class MyAdapter extends IndicatorViewPager.IndicatorFragmentPagerAdapter {
 
+    private class MyAdapter extends IndicatorViewPager.IndicatorFragmentPagerAdapter {
+        ArrayList<LazyFragment> dataList;
+        private int currentPageIndex =0;
         public MyAdapter(FragmentManager fragmentManager) {
             super(fragmentManager);
+        }
+        public MyAdapter(FragmentManager fragmentManager, ArrayList<LazyFragment> datalist) {
+            super(fragmentManager);
+            dataList = datalist;
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return dataList.size();
         }
 
         @Override
@@ -100,11 +150,14 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public Fragment getFragmentForPage(int position) {
-            RecommendFragment mainFragment = new RecommendFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString(RecommendFragment.INTENT_STRING_TABNAME, "haha");
-            bundle.putInt(RecommendFragment.INTENT_INT_POSITION, position);
-            mainFragment.setArguments(bundle);
+           // dataList.get(currentPageIndex).onPause(); // 调用切换前Fargment的onPause()
+                     dataList.get(currentPageIndex).onStop(); // 调用切换前Fargment的onStop()
+            if(dataList.get(position).isAdded()){
+               dataList.get(position).onStart(); // 调用切换后Fargment的onStart()
+           //     dataList.get(position).onResume(); // 调用切换后Fargment的onResume()
+                 }
+            currentPageIndex = position;
+            LazyFragment mainFragment = dataList.get(position);
             return mainFragment;
         }
 

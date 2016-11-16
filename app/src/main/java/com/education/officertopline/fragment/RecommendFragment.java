@@ -7,16 +7,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
 import android.widget.TextView;
 
 import com.education.officertopline.R;
 import com.education.officertopline.adapter.MyAdapter;
-import com.education.officertopline.animators.FadeInAnimator;
 import com.education.officertopline.animators.FadeInDownAnimator;
-import com.education.officertopline.animators.FadeInUpAnimator;
-import com.education.officertopline.animators.LandingAnimator;
-import com.education.officertopline.animators.SlideInLeftAnimator;
 import com.education.officertopline.interfaces.MyItemClickListener;
 import com.education.officertopline.log.LogUtil;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
@@ -38,10 +36,10 @@ public class RecommendFragment extends LazyFragment {
     private int refreshTime = 0;
     private int times = 0;
 
-    @Override
-    protected View getPreviewLayout(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate(R.layout.fragment_loading, container, false);
-    }
+//    @Override
+//    protected View getPreviewLayout(LayoutInflater inflater, ViewGroup container) {
+//        return inflater.inflate(R.layout.fragment_loading, container, false);
+//    }
 
     @Override
     protected void onCreateViewLazy(Bundle savedInstanceState) {
@@ -110,25 +108,60 @@ public class RecommendFragment extends LazyFragment {
         for(int i = 0; i < 15 ;i++){
             listData.add("item" + i);
         }
-        mAdapter = new MyAdapter(listData);
-        mAdapter.setOnItemClickListener(new MyItemClickListener() {
+        mAdapter = new MyAdapter(listData, new MyItemClickListener() {
             @Override
-            public void onItemClick(View view, int postion) {
-                LogUtil.i("lgs", "position--:" + postion);
-                mAdapter.remove(postion);
+            public void onItemClick(View view, int position) {
+                LogUtil.i("lgs", "position--:" + position + "getHeaderViewCount:"+ mRecyclerView.getHeaderViewCount());
+                mAdapter.remove(position- mRecyclerView.getHeaderViewCount(), mRecyclerView.getHeaderViewCount());
             }
         });
+
+        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.item,null);
+        mRecyclerView.addHeaderView(view);
+        mRecyclerView.setEmptyView(mEmptyView);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setItemAnimator(new FadeInDownAnimator(new OvershootInterpolator(1f)));
         mRecyclerView.getItemAnimator().setAddDuration(500);
         mRecyclerView.getItemAnimator().setRemoveDuration(500);
         mRecyclerView.setRefreshing(true);
+        LogUtil.d("lgs", "Fragment 将要创建View " + position);
     }
 
+    @Override
+    protected void onResumeLazy() {
+        super.onResumeLazy();
+        LogUtil.d("lgs", "Fragment所在的Activity onResume, onResumeLazy " + position);
+    }
+
+    @Override
+    protected void onFragmentStartLazy() {
+        super.onFragmentStartLazy();
+        LogUtil.d("lgs", "Fragment 显示 " + position);
+    }
+
+    @Override
+    protected void onFragmentStopLazy() {
+        super.onFragmentStopLazy();
+        LogUtil.d("lgs", "Fragment 掩藏 " + position);
+    }
+
+    @Override
+    protected void onPauseLazy() {
+        super.onPauseLazy();
+        LogUtil.d("lgs", "Fragment所在的Activity onPause, onPauseLazy " + position);
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        LogUtil.d("lgs", "Fragment 所在的Activity onDestroy " + position);
+    }
     @Override
     protected void onDestroyViewLazy() {
         super.onDestroyViewLazy();
         handler.removeMessages(1);
+        LogUtil.d("lgs", "Fragment View将被销毁 " + position);
     }
 
     @SuppressLint("HandlerLeak")
