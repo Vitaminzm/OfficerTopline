@@ -8,24 +8,27 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.education.officertopline.R;
+import com.education.officertopline.log.LogUtil;
 import com.education.officertopline.utils.ToastUtils;
 import com.education.officertopline.utils.Utils;
-import com.shizhefei.fragment.LazyFragment;
+import com.shizhefei.view.indicator.Indicator;
 import com.shizhefei.view.indicator.IndicatorViewPager;
 import com.shizhefei.view.indicator.ScrollIndicatorView;
 import com.shizhefei.view.indicator.slidebar.ColorBar;
 import com.shizhefei.view.indicator.transition.OnTransitionTextListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -45,7 +48,9 @@ public class HomeFragment extends BaseFragment {
 
     private IndicatorViewPager indicatorViewPager;
     private LayoutInflater inflate;
-    private ArrayList<LazyFragment> viewPagerdatas;
+    private MyIndicatorAdapter myIndicatorAdapter;
+    private MyFragmentPagerAdapter myFragmentPagerAdapter;
+    private ArrayList<Channel> channel;
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -85,7 +90,12 @@ public class HomeFragment extends BaseFragment {
         image_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtils.sendtoastbyhandler(handler,"dianjiale ");
+                ToastUtils.sendtoastbyhandler(handler, "dianjiale ");
+                channel.remove(0);
+             //   home_viewPager.setOffscreenPageLimit(viewPagerdatas.size());
+                myIndicatorAdapter.notifyDataSetChanged();
+                myFragmentPagerAdapter.notifyDataSetChanged();
+
             }
         });
         inflate = LayoutInflater.from(getActivity().getApplicationContext());
@@ -95,19 +105,40 @@ public class HomeFragment extends BaseFragment {
         home_indicator.setScrollBar(new ColorBar(getActivity().getApplicationContext(), 0xFF2196F3, 4));
 
 
-        viewPagerdatas=new ArrayList<>();
-        int i = 0;
-        for (i= 0; i<10;i++){
-            RecommendFragment mainFragment = new RecommendFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString(RecommendFragment.INTENT_STRING_TABNAME, "haha");
-            bundle.putInt(RecommendFragment.INTENT_INT_POSITION, i);
-            mainFragment.setArguments(bundle);
-            viewPagerdatas.add(mainFragment);
+        channel =new ArrayList<>();
+        for (int i= 0; i<6;i++){
+            channel.add(new Channel(""+i,i));
         }
-        home_viewPager.setOffscreenPageLimit(viewPagerdatas.size());
-        indicatorViewPager = new IndicatorViewPager(home_indicator, home_viewPager);
-        indicatorViewPager.setAdapter(new MyAdapter(getChildFragmentManager(),viewPagerdatas));
+        home_viewPager.setOffscreenPageLimit(8);
+        myIndicatorAdapter = new MyIndicatorAdapter(channel);
+        home_indicator.setAdapter(myIndicatorAdapter);
+        home_indicator.setOnItemSelectListener(new Indicator.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(View selectItemView, int select, int preSelect) {
+                home_viewPager.setCurrentItem(select);
+            }
+        });
+        myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager(), channel);
+        home_viewPager.setAdapter(myFragmentPagerAdapter);
+        home_viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(position == home_indicator.getCurrentItem()){
+                    return;
+                }
+                home_indicator.setCurrentItem(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     @Override
@@ -116,15 +147,11 @@ public class HomeFragment extends BaseFragment {
         ButterKnife.unbind(this);//解绑
     }
 
+    private class MyIndicatorAdapter extends Indicator.IndicatorAdapter {
 
-    private class MyAdapter extends IndicatorViewPager.IndicatorFragmentPagerAdapter {
-        ArrayList<LazyFragment> dataList;
-        private int currentPageIndex =0;
-        public MyAdapter(FragmentManager fragmentManager) {
-            super(fragmentManager);
-        }
-        public MyAdapter(FragmentManager fragmentManager, ArrayList<LazyFragment> datalist) {
-            super(fragmentManager);
+        ArrayList<Channel> dataList;
+        public MyIndicatorAdapter(ArrayList<Channel> datalist) {
+            super();
             dataList = datalist;
         }
 
@@ -134,12 +161,12 @@ public class HomeFragment extends BaseFragment {
         }
 
         @Override
-        public View getViewForTab(int position, View convertView, ViewGroup container) {
+        public View getView(int position, View convertView, ViewGroup container) {
             if (convertView == null) {
                 convertView = inflate.inflate(R.layout.view_tab_top, container, false);
             }
             TextView textView = (TextView) convertView;
-            textView.setText("热门" + " " + position);
+            textView.setText("热门" + " " + dataList.get(position).getName());
             int witdh = getTextWidth(textView);
             int padding = Utils.dip2px(getActivity().getApplicationContext(), 8f);
             //因为wrap的布局 字体大小变化会导致textView大小变化产生抖动，这里通过设置textView宽度就避免抖动现象
@@ -147,19 +174,84 @@ public class HomeFragment extends BaseFragment {
             textView.setWidth((int) (witdh * 1.3f) + padding);
             return convertView;
         }
+    }
+
+    private class MyFragmentPagerAdapter extends FragmentPagerAdapter{
+        List<Channel> dataList;
+        FragmentManager fm;
+        Fragment currentFragment;
+        public MyFragmentPagerAdapter(FragmentManager fm, List<Channel> fragments){
+            super(fm);
+            this.fm = fm;
+            dataList = fragments;
+        }
+        public int getItemPosition(Object object){
+            return POSITION_NONE;
+        }
 
         @Override
-        public Fragment getFragmentForPage(int position) {
-           // dataList.get(currentPageIndex).onPause(); // 调用切换前Fargment的onPause()
-                     dataList.get(currentPageIndex).onStop(); // 调用切换前Fargment的onStop()
-            if(dataList.get(position).isAdded()){
-               dataList.get(position).onStart(); // 调用切换后Fargment的onStart()
-           //     dataList.get(position).onResume(); // 调用切换后Fargment的onResume()
-                 }
-            currentPageIndex = position;
-            LazyFragment mainFragment = dataList.get(position);
+        public Fragment getItem(int position) {
+            LogUtil.i("lgs","getItem:"+position);
+//            // dataList.get(currentPageIndex).onPause(); // 调用切换前Fargment的onPause()
+//            dataList.get(currentPageIndex).onStop(); // 调用切换前Fargment的onStop()
+//            if(dataList.get(position).isAdded()){
+//                dataList.get(position).onStart(); // 调用切换后Fargment的onStart()
+//                //     dataList.get(position).onResume(); // 调用切换后Fargment的onResume()
+//            }
+//            currentPageIndex = position;
+//            LazyFragment mainFragment = dataList.get(position);
+            RecommendFragment mainFragment = new RecommendFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString(RecommendFragment.INTENT_STRING_TABNAME, "haha");
+            bundle.putInt(RecommendFragment.INTENT_INT_POSITION, dataList.get(position).getId());
+            mainFragment.setArguments(bundle);
             return mainFragment;
         }
+
+        @Override
+        public int getCount() {
+            return dataList.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            // give an ID different from position when position has been changed
+            return  dataList.get(position).getId() + position;
+        }
+
+        @Override
+        public void setPrimaryItem(ViewGroup container, int position, Object object) {
+            currentFragment = (Fragment) object;
+            super.setPrimaryItem(container, position, object);
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            //得到缓存的fragment
+            LogUtil.i("lgs","instantiateItem:"+position);
+            Fragment fragment = (Fragment)super.instantiateItem(container, position);
+////            //得到tag ❶
+//            String fragmentTag = fragment.getTag();
+//          //  if (fragmentsUpdateFlag[position %fragmentsUpdateFlag.length]) {
+//                //如果这个fragment需要更新
+//                FragmentTransaction ft =fm.beginTransaction();
+//                //移除旧的fragment
+//                ft.remove(fragment);
+//                //换成新的fragment
+//                fragment =fragments[position %fragments.length];
+//                //添加新fragment时必须用前面获得的tag ❶
+//                ft.add(container.getId(), fragment, fragmentTag);
+//                ft.attach(fragment);
+//                ft.commit();
+//                //复位更新标志
+//           //     fragmentsUpdateFlag[position %fragmentsUpdateFlag.length] =false;
+//           // }
+            return fragment;
+        }
+         public Fragment getCurrentFragment(){
+             return currentFragment;
+         }
+    }
 
         private int getTextWidth(TextView textView) {
             if (textView == null) {
@@ -171,6 +263,40 @@ public class HomeFragment extends BaseFragment {
             paint.getTextBounds(text, 0, text.length(), bounds);
             int width = bounds.left + bounds.width();
             return width;
+        }
+
+    public class Channel{
+        public Channel(String a, int b){
+            name = a;
+            id = b;
+        }
+        String name;
+        int id;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+    }
+
+    public void refushData(){
+        Fragment fragment =  myFragmentPagerAdapter.getCurrentFragment();
+        if(fragment == null){
+            LogUtil.i("lgs","refushData failed" );
+        }else{
+            ((RecommendFragment)fragment).refushData();
+            LogUtil.i("lgs","refushData succeess" );
         }
     }
 }

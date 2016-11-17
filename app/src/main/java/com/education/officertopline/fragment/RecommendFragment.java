@@ -3,6 +3,7 @@ package com.education.officertopline.fragment;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,10 +37,10 @@ public class RecommendFragment extends LazyFragment {
     private int refreshTime = 0;
     private int times = 0;
 
-//    @Override
-//    protected View getPreviewLayout(LayoutInflater inflater, ViewGroup container) {
-//        return inflater.inflate(R.layout.fragment_loading, container, false);
-//    }
+    @Override
+    protected View getPreviewLayout(LayoutInflater inflater, ViewGroup container) {
+        return inflater.inflate(R.layout.fragment_loading, container, false);
+    }
 
     @Override
     protected void onCreateViewLazy(Bundle savedInstanceState) {
@@ -69,7 +70,7 @@ public class RecommendFragment extends LazyFragment {
 
                         listData.clear();
                         for (int i = 0; i < 15; i++) {
-                            listData.add("item" + i + "after " + refreshTime + " times of refresh");
+                            listData.add(position+":item" + i + "after " + refreshTime + " times of refresh");
                         }
                         mAdapter.notifyDataSetChanged();
                         mRecyclerView.refreshComplete();
@@ -84,7 +85,7 @@ public class RecommendFragment extends LazyFragment {
                     new Handler().postDelayed(new Runnable() {
                         public void run() {
                             for (int i = 0; i < 15; i++) {
-                                listData.add("item" + (1 + listData.size()));
+                                listData.add(position+":item" + (1 + listData.size()));
                             }
                             mRecyclerView.loadMoreComplete();
                             mAdapter.notifyDataSetChanged();
@@ -94,7 +95,7 @@ public class RecommendFragment extends LazyFragment {
                     new Handler().postDelayed(new Runnable() {
                         public void run() {
                             for (int i = 0; i < 9; i++) {
-                                listData.add("item" + (1 + listData.size()));
+                                listData.add(position+":item" + (1 + listData.size()));
                             }
                             mRecyclerView.setNoMore(true);
                             mAdapter.notifyDataSetChanged();
@@ -106,7 +107,7 @@ public class RecommendFragment extends LazyFragment {
         });
         listData = new  ArrayList<String>();
         for(int i = 0; i < 15 ;i++){
-            listData.add("item" + i);
+            listData.add(position+":item" + i);
         }
         mAdapter = new MyAdapter(listData, new MyItemClickListener() {
             @Override
@@ -123,7 +124,7 @@ public class RecommendFragment extends LazyFragment {
         mRecyclerView.setItemAnimator(new FadeInDownAnimator(new OvershootInterpolator(1f)));
         mRecyclerView.getItemAnimator().setAddDuration(500);
         mRecyclerView.getItemAnimator().setRemoveDuration(500);
-        mRecyclerView.setRefreshing(true);
+//        mRecyclerView.setRefreshing(true);
         LogUtil.d("lgs", "Fragment 将要创建View " + position);
     }
 
@@ -168,10 +169,14 @@ public class RecommendFragment extends LazyFragment {
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(android.os.Message msg) {
+            mRecyclerView.setRefreshing(true);
 //            textView.setVisibility(View.VISIBLE);
 //            progressBar.setVisibility(View.GONE);
         }
-
-        ;
     };
+
+    public void refushData(){
+        LogUtil.i("lgs","-----------");
+        handler.sendEmptyMessage(1);
+    }
 }

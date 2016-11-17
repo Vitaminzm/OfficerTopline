@@ -6,13 +6,16 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.view.View;
 import android.view.ViewStub;
 import android.widget.FrameLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.education.officertopline.R;
 import com.education.officertopline.app.AppManager;
 import com.education.officertopline.fragment.HomeFragment;
+import com.education.officertopline.log.LogUtil;
 import com.education.officertopline.utils.FragmentTabUtils;
 import com.education.officertopline.utils.ToastUtils;
 
@@ -26,7 +29,9 @@ public class MainActivity extends FragmentActivity implements FragmentTabUtils.O
 
     @Bind(R.id.fragment_container)FrameLayout fragment_container;
     @Bind(R.id.mian_rgs)RadioGroup mian_rgs;
+    @Bind(R.id.main_home_r)RadioButton main_home_r;
     @Bind(R.id.view_stub)ViewStub view_stub;
+    private boolean flag = false;
 
 
     @Override
@@ -64,6 +69,18 @@ public class MainActivity extends FragmentActivity implements FragmentTabUtils.O
         fragments.add(HomeFragment.newInstance());
         fragments.add(HomeFragment.newInstance());
         new FragmentTabUtils(getSupportFragmentManager(), fragments, R.id.fragment_container, mian_rgs, this);
+        main_home_r.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(flag){
+                    ((HomeFragment)fragments.get(0)).refushData();
+                    LogUtil.i("lgs","222222-----");
+                }else {
+                    flag = true;
+                }
+            }
+        });
+        flag = true;
     }
 
     protected void initView() {
@@ -92,6 +109,7 @@ public class MainActivity extends FragmentActivity implements FragmentTabUtils.O
 
     @Override
     public void OnRgsExtraCheckedChanged(RadioGroup radioGroup, int checkedId, int index) {
-
+        LogUtil.i("lgs","11111-----");
+        flag = false;
     }
 }

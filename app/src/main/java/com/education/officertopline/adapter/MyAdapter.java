@@ -13,6 +13,9 @@ import com.education.officertopline.log.LogUtil;
 
 import java.util.ArrayList;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * Created by jianghejie on 15/11/26.
  */
@@ -26,7 +29,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         this.mItemClickListener = mItemClickListener;
     }
     public void remove(int position, int position2) {
-        if(position < 0 ){
+        if(position < 0  || position >= datas.size()){
             return;
         }
         datas.remove(position);
@@ -47,13 +50,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         return datas.size();
     }
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener {
-        public TextView mTextView;
+        @Bind(R.id.text) TextView mTextView;
         private MyItemClickListener mListener;
         public ViewHolder(View view, MyItemClickListener listener){
             super(view);
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
-            mTextView = (TextView) view.findViewById(R.id.text);
+            ButterKnife.bind(this, view);//framgent
             mListener = listener;
         }
 
