@@ -1,5 +1,6 @@
 package com.jcodecraeer.xrecyclerview;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -23,7 +24,7 @@ public class XRecyclerView extends RecyclerView {
     private ArrayList<View> mHeaderViews = new ArrayList<>();
     private WrapAdapter mWrapAdapter;
     private float mLastY = -1;
-    private static final float DRAG_RATE = 2.5f;
+    private static final float DRAG_RATE = 1.5f;
     private LoadingListener mLoadingListener;
     private ArrowRefreshHeader mRefreshHeader;
     private boolean pullRefreshEnabled = true;
@@ -508,8 +509,27 @@ public class XRecyclerView extends RecyclerView {
             if (refreshing && pullRefreshEnabled && mLoadingListener != null) {
                 refreshComplete = false;
                 mRefreshHeader.setState(ArrowRefreshHeader.STATE_REFRESHING);
-                mRefreshHeader.onMove(mRefreshHeader.getmMeasuredHeight());
-                mLoadingListener.onRefresh();
+                mRefreshHeader.smoothScrollTo(mRefreshHeader.getmMeasuredHeight(), new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mLoadingListener.onRefresh();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
             }
         }
     }

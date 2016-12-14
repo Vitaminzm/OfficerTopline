@@ -9,7 +9,6 @@ import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +17,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.education.officertopline.R;
+import com.education.officertopline.app.ConstantData;
+import com.education.officertopline.db.dao.ChannelNewsListDao;
+import com.education.officertopline.entity.ToplineChannelInfo;
+import com.education.officertopline.http.HttpActionHandle;
+import com.education.officertopline.http.HttpRequestUtil;
+import com.education.officertopline.http.HttpStringClient;
 import com.education.officertopline.log.LogUtil;
+import com.education.officertopline.result.ToplineChannelListResult;
+import com.education.officertopline.utils.ArithDouble;
+import com.education.officertopline.utils.SpSaveUtils;
 import com.education.officertopline.utils.ToastUtils;
 import com.education.officertopline.utils.Utils;
 import com.shizhefei.view.indicator.Indicator;
@@ -50,7 +58,7 @@ public class HomeFragment extends BaseFragment {
     private LayoutInflater inflate;
     private MyIndicatorAdapter myIndicatorAdapter;
     private MyFragmentPagerAdapter myFragmentPagerAdapter;
-    private ArrayList<Channel> channel;
+    private ArrayList<ToplineChannelInfo> channelList;
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -91,26 +99,23 @@ public class HomeFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 ToastUtils.sendtoastbyhandler(handler, "dianjiale ");
-                channel.remove(0);
-             //   home_viewPager.setOffscreenPageLimit(viewPagerdatas.size());
-                myIndicatorAdapter.notifyDataSetChanged();
-                myFragmentPagerAdapter.notifyDataSetChanged();
+//                channel.remove(0);
+//             //   home_viewPager.setOffscreenPageLimit(viewPagerdatas.size());
+//                myIndicatorAdapter.notifyDataSetChanged();
+//                myFragmentPagerAdapter.notifyDataSetChanged();
 
             }
         });
         inflate = LayoutInflater.from(getActivity().getApplicationContext());
         float unSelectSize = 12;
         float selectSize = unSelectSize * 1.3f;
-        home_indicator.setOnTransitionListener(new OnTransitionTextListener().setColor(0xFF2196F3, Color.GRAY).setSize(selectSize, unSelectSize));
-        home_indicator.setScrollBar(new ColorBar(getActivity().getApplicationContext(), 0xFF2196F3, 4));
+        home_indicator.setOnTransitionListener(new OnTransitionTextListener().setColor(getResources().getColor(R.color.themeRed), getResources().getColor(R.color.deepgray)).setSize(selectSize, unSelectSize));
+        home_indicator.setScrollBar(new ColorBar(getActivity().getApplicationContext(), getResources().getColor(R.color.themeRed), 4));
 
 
-        channel =new ArrayList<>();
-        for (int i= 0; i<6;i++){
-            channel.add(new Channel(""+i,i));
-        }
-        home_viewPager.setOffscreenPageLimit(8);
-        myIndicatorAdapter = new MyIndicatorAdapter(channel);
+        channelList =new ArrayList<>();
+        home_viewPager.setOffscreenPageLimit(3);
+        myIndicatorAdapter = new MyIndicatorAdapter(channelList);
         home_indicator.setAdapter(myIndicatorAdapter);
         home_indicator.setOnItemSelectListener(new Indicator.OnItemSelectedListener() {
             @Override
@@ -118,7 +123,7 @@ public class HomeFragment extends BaseFragment {
                 home_viewPager.setCurrentItem(select);
             }
         });
-        myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager(), channel);
+        myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager(), channelList);
         home_viewPager.setAdapter(myFragmentPagerAdapter);
         home_viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -128,7 +133,7 @@ public class HomeFragment extends BaseFragment {
 
             @Override
             public void onPageSelected(int position) {
-                if(position == home_indicator.getCurrentItem()){
+                if (position == home_indicator.getCurrentItem()) {
                     return;
                 }
                 home_indicator.setCurrentItem(position);
@@ -139,6 +144,7 @@ public class HomeFragment extends BaseFragment {
 
             }
         });
+        initData();
     }
 
     @Override
@@ -149,8 +155,8 @@ public class HomeFragment extends BaseFragment {
 
     private class MyIndicatorAdapter extends Indicator.IndicatorAdapter {
 
-        ArrayList<Channel> dataList;
-        public MyIndicatorAdapter(ArrayList<Channel> datalist) {
+        ArrayList<ToplineChannelInfo> dataList;
+        public MyIndicatorAdapter(ArrayList<ToplineChannelInfo> datalist) {
             super();
             dataList = datalist;
         }
@@ -166,7 +172,7 @@ public class HomeFragment extends BaseFragment {
                 convertView = inflate.inflate(R.layout.view_tab_top, container, false);
             }
             TextView textView = (TextView) convertView;
-            textView.setText("热门" + " " + dataList.get(position).getName());
+            textView.setText(dataList.get(position).getChannelName());
             int witdh = getTextWidth(textView);
             int padding = Utils.dip2px(getActivity().getApplicationContext(), 8f);
             //因为wrap的布局 字体大小变化会导致textView大小变化产生抖动，这里通过设置textView宽度就避免抖动现象
@@ -177,10 +183,10 @@ public class HomeFragment extends BaseFragment {
     }
 
     private class MyFragmentPagerAdapter extends FragmentPagerAdapter{
-        List<Channel> dataList;
+        List<ToplineChannelInfo> dataList;
         FragmentManager fm;
         Fragment currentFragment;
-        public MyFragmentPagerAdapter(FragmentManager fm, List<Channel> fragments){
+        public MyFragmentPagerAdapter(FragmentManager fm, List<ToplineChannelInfo> fragments){
             super(fm);
             this.fm = fm;
             dataList = fragments;
@@ -202,8 +208,7 @@ public class HomeFragment extends BaseFragment {
 //            LazyFragment mainFragment = dataList.get(position);
             RecommendFragment mainFragment = new RecommendFragment();
             Bundle bundle = new Bundle();
-            bundle.putString(RecommendFragment.INTENT_STRING_TABNAME, "haha");
-            bundle.putInt(RecommendFragment.INTENT_INT_POSITION, dataList.get(position).getId());
+            bundle.putString(RecommendFragment.INTENT_STRING_CHANNELCODE, dataList.get(position).getChannelCode());
             mainFragment.setArguments(bundle);
             return mainFragment;
         }
@@ -216,7 +221,7 @@ public class HomeFragment extends BaseFragment {
         @Override
         public long getItemId(int position) {
             // give an ID different from position when position has been changed
-            return  dataList.get(position).getId() + position;
+            return  ArithDouble.parseLong(dataList.get(position).getChannelCode()) + position;
         }
 
         @Override
@@ -265,31 +270,45 @@ public class HomeFragment extends BaseFragment {
             return width;
         }
 
-    public class Channel{
-        public Channel(String a, int b){
-            name = a;
-            id = b;
+    public void initData(){
+        List<ToplineChannelInfo> dataList = (List<ToplineChannelInfo>) SpSaveUtils.getObject(getActivity().getApplicationContext(), ConstantData.TOPLINE_CHANNEL_LIST);
+        if(dataList!= null && dataList.size() > 0){
+            channelList.addAll(dataList);
+            myIndicatorAdapter.notifyDataSetChanged();
+            myFragmentPagerAdapter.notifyDataSetChanged();
+        }else{
+            ToplineChannelInfo i= new ToplineChannelInfo();
+            i.setChannelCode("1");
+            i.setChannelName("测试");
+            channelList.add(i);
+            ToplineChannelInfo i1= new ToplineChannelInfo();
+            i1.setChannelCode("2");
+            i1.setChannelName("测试2");
+            channelList.add(i1);
+            myIndicatorAdapter.notifyDataSetChanged();
+            myFragmentPagerAdapter.notifyDataSetChanged();
+//            HttpRequestUtil.getinstance().getToplineChannel(HTTP_TASK_KEY, null, ToplineChannelListResult.class, new HttpActionHandle<ToplineChannelListResult>() {
+//                @Override
+//                public void handleActionError(String actionName, String errmsg) {
+//
+//                }
+//
+//                @Override
+//                public void handleActionSuccess(String actionName, ToplineChannelListResult result) {
+//                    if(ConstantData.HTTP_RESPONSE_OK.equals(result.getCode())){
+//                        if(result.getList()!= null && result.getList().size() > 0){
+//                            channelList.addAll(result.getList());
+//                            myIndicatorAdapter.notifyDataSetChanged();
+//                            myFragmentPagerAdapter.notifyDataSetChanged();
+//                        }
+//                    }else{
+//                        ToastUtils.sendtoastbyhandler(handler,result.getMsg());
+//                    }
+//                }
+//            });
         }
-        String name;
-        int id;
 
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
     }
-
     public void refushData(){
         Fragment fragment =  myFragmentPagerAdapter.getCurrentFragment();
         if(fragment == null){

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/margin_rz"
+    android:layout_marginBottom="@dimen/margin_tt">
+
+    <TextView
+        android:id="@+id/text_command_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="@color/fontgray"
+        android:textSize="@dimen/font_size_tf"
+        android:text="1112评论" />
+
+    <TextView
+        android:id="@+id/text_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="@color/fontgray"
+        android:textSize="@dimen/font_size_tf"
+        android:layout_marginLeft="10dip"
+        android:layout_toRightOf="@id/text_command_count"
+        android:text="23分钟前" />
+
+    <ImageView
+        android:id="@+id/imageview_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="@dimen/margin_tz"
+        android:layout_toRightOf="@id/text_time"
+        android:src="@mipmap/list_icon_tab_nor"/>
+
+    <ImageView
+        android:id="@+id/imageview_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/margin_tz"
+        android:src="@mipmap/list_button_cancel"/>
+</RelativeLayout>

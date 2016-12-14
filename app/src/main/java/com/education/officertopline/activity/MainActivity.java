@@ -74,13 +74,13 @@ public class MainActivity extends FragmentActivity implements FragmentTabUtils.O
             public void onClick(View v) {
                 if(flag){
                     ((HomeFragment)fragments.get(0)).refushData();
-                    LogUtil.i("lgs","222222-----");
                 }else {
                     flag = true;
                 }
             }
         });
         flag = true;
+        mian_rgs.check(R.id.main_home_r);
     }
 
     protected void initView() {
@@ -109,7 +109,6 @@ public class MainActivity extends FragmentActivity implements FragmentTabUtils.O
 
     @Override
     public void OnRgsExtraCheckedChanged(RadioGroup radioGroup, int checkedId, int index) {
-        LogUtil.i("lgs","11111-----");
         flag = false;
     }
 }

@@ -104,13 +104,12 @@ public class HttpStringClient {
 		final Gson gson = getGson();
 		httpactionhandler.handleActionStart();
 
-		Map<String, String> param = map;
-		if (param == null) {
-			param = new HashMap<>();
+		Map<String, String> param = new HashMap<>();
+		param.put("gladEyeKey", "rO0ABXQAD1YawoQ8w5h2QsK8ekYrOA==");//SpSaveUtils.read(MyApplication.context, ConstantData.LOGIN_TOKEN, "")
+		if(map != null){
+			param.put("params", GsonUtil.beanToJson(map));
 		}
-		param.put("token", SpSaveUtils.read(MyApplication.context, ConstantData.LOGIN_TOKEN, ""));
 		FormBody.Builder builder = new FormBody.Builder();
-
 
 		Set<Map.Entry<String, String>> set = param.entrySet();
 		for (Iterator<Map.Entry<String, String>> it = set.iterator(); it.hasNext();) {

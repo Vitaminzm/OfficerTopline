@@ -16,6 +16,7 @@ import java.io.Serializable;
  */
 public class BaseResult implements Serializable{
 
+	private static final long serialVersionUID = 1L;
 	public String getCode() {
 		return code;
 	}
@@ -31,9 +32,6 @@ public class BaseResult implements Serializable{
 	public void setMsg(String msg) {
 		this.msg = msg;
 	}
-
-	@Expose
-	public static final String SUCCESS = "00";
 
 	@SerializedName("retcode")
 	private String code;

@@ -16,6 +16,10 @@ import android.widget.TextView;
 import com.education.officertopline.R;
 import com.education.officertopline.adapter.MyAdapter;
 import com.education.officertopline.animators.FadeInDownAnimator;
+import com.education.officertopline.app.ConstantData;
+import com.education.officertopline.db.dao.ChannelNewsListDao;
+import com.education.officertopline.entity.ToplineNewsListInfo;
+import com.education.officertopline.http.HttpStringClient;
 import com.education.officertopline.interfaces.MyItemClickListener;
 import com.education.officertopline.log.LogUtil;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
@@ -23,12 +27,14 @@ import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.shizhefei.fragment.LazyFragment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RecommendFragment extends LazyFragment {
-    public static final String INTENT_STRING_TABNAME = "intent_String_tabName";
-    public static final String INTENT_INT_POSITION = "intent_int_position";
+
+    protected final String HTTP_TASK_KEY = "HttpTaskKey_" + hashCode();
+    public static final String INTENT_STRING_CHANNELCODE = "intent_string_channelcode";
     private String tabName;
-    private int position;
+    private String position;
     private TextView mEmptyView;
     private XRecyclerView mRecyclerView;
 
@@ -45,8 +51,7 @@ public class RecommendFragment extends LazyFragment {
     @Override
     protected void onCreateViewLazy(Bundle savedInstanceState) {
         super.onCreateViewLazy(savedInstanceState);
-        tabName = getArguments().getString(INTENT_STRING_TABNAME);
-        position = getArguments().getInt(INTENT_INT_POSITION);
+        position = getArguments().getString(INTENT_STRING_CHANNELCODE);
         setContentView(R.layout.fragment_recommend);
         mEmptyView = (TextView) findViewById(R.id.text_empty);
         mEmptyView.setText(tabName + " " + position + " 界面加载完毕");
@@ -126,6 +131,15 @@ public class RecommendFragment extends LazyFragment {
         mRecyclerView.getItemAnimator().setRemoveDuration(500);
 //        mRecyclerView.setRefreshing(true);
         LogUtil.d("lgs", "Fragment 将要创建View " + position);
+        onRefresh();
+    }
+
+    private void onRefresh() {
+        ChannelNewsListDao dao = new ChannelNewsListDao(getApplicationContext());
+        List<ToplineNewsListInfo> datas = dao.getOfflineOrderInfo(position, ConstantData.PAGESIZE);
+        if(datas.size() > 0){
+
+        }
     }
 
     @Override
@@ -155,6 +169,7 @@ public class RecommendFragment extends LazyFragment {
 
     @Override
     public void onDestroy() {
+        HttpStringClient.getinstance().cancleRequest(HTTP_TASK_KEY);
         super.onDestroy();
         LogUtil.d("lgs", "Fragment 所在的Activity onDestroy " + position);
     }
@@ -169,14 +184,14 @@ public class RecommendFragment extends LazyFragment {
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(android.os.Message msg) {
-            mRecyclerView.setRefreshing(true);
+
 //            textView.setVisibility(View.VISIBLE);
 //            progressBar.setVisibility(View.GONE);
         }
     };
 
     public void refushData(){
-        LogUtil.i("lgs","-----------");
-        handler.sendEmptyMessage(1);
+        mRecyclerView.scrollToPosition(0);
+        mRecyclerView.setRefreshing(true);
     }
 }

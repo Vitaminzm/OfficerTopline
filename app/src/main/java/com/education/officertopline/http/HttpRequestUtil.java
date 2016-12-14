@@ -25,7 +25,7 @@ public class HttpRequestUtil {
 	 * @return
 	 */
 	private static String getUrl(String url) {
-		return ConstantData.IP_HOST_CONFIG_PREFIX + AppManager.host_config +"/"+ url;
+		return ConstantData.IP_HOST_CONFIG_PREFIX + ConstantData.host_config +"/"+ url;
 	}
 
 	private HttpRequestUtil() {
@@ -39,13 +39,27 @@ public class HttpRequestUtil {
 	 * 
 	 * @author CWI-APST emial:26873204@qq.com
 	 * @param <T>
-	 * @Description: TODO(登陆)
+	 * @Description: 根据频道id获取list信息
 	 * @param param
 	 * @param clz
 	 * @param httpactionhandler
 	 */
-	public <T> void login(String tag, Map<String, String> param, final Class<T> clz, final HttpActionHandle<T> httpactionhandler) {
-		HttpStringClient.getinstance().getForObject(tag, getUrl("xbapi/login"), param, clz,
+	public <T> void getToplineNewsList(String tag, Map<String, String> param, final Class<T> clz, final HttpActionHandle<T> httpactionhandler) {
+		HttpStringClient.getinstance().getForObject(tag, getUrl("officer_topline_core/toplineChannelController/getToplineNewsList"), param, clz,
+				httpactionhandler);
+	}
+
+	/**
+	 *
+	 * @author CWI-APST emial:26873204@qq.com
+	 * @param <T>
+	 * @Description: 获取频道list
+	 * @param param
+	 * @param clz
+	 * @param httpactionhandler
+	 */
+	public <T> void getToplineChannel(String tag, Map<String, String> param, final Class<T> clz, final HttpActionHandle<T> httpactionhandler) {
+		HttpStringClient.getinstance().getForObject(tag, getUrl("officer_topline_core/toplineChannelController/getToplineChannel"), param, clz,
 				httpactionhandler);
 	}
 }

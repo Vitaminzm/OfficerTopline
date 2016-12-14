@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/text_title"
+        android:layout_marginTop="@dimen/margin_te"
+        android:textColor="@color/fontblack"
+        android:text="时隔100年，台湾终于要回归了！"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:textSize="@dimen/font_size_rt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/margin_tt"
+        android:layout_height="@dimen/height_ofe">
+        <ImageView
+            android:id="@+id/image_one"
+            android:layout_gravity="center"
+            android:layout_weight ="1"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/height_ofe"
+            android:src="@mipmap/ic_launcher"/>
+        <ImageView
+            android:id="@+id/image_two"
+            android:layout_gravity="center"
+            android:layout_weight ="1"
+            android:layout_width="0dp"
+            android:layout_marginLeft="10dip"
+            android:layout_height="@dimen/height_ofe"
+            android:src="@mipmap/ic_launcher"/>
+        <ImageView
+            android:id="@+id/image_three"
+            android:layout_gravity="center"
+            android:layout_weight ="1"
+            android:layout_width="0dp"
+            android:layout_marginLeft="10dip"
+            android:layout_height="@dimen/height_ofe"
+            android:src="@mipmap/ic_launcher"/>
+    </LinearLayout>
+    <include  layout="@layout/item_footer" />
+</LinearLayout>

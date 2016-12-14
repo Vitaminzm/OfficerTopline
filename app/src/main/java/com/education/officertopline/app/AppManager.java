@@ -16,7 +16,6 @@ public class AppManager {
 
 	/** activity manange list */
 	public static List<Activity> activityList = new LinkedList<>();
-	public static  String host_config = "210.14.129.42:82";  //41
 	private static AppManager instance;
 
 	private AppManager() {

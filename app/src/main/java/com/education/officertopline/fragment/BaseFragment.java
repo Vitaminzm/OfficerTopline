@@ -7,11 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.education.officertopline.http.HttpStringClient;
+
 /**
  * Fragment基类
  * Created by WuHang on 2015/9/17.
  */
 public class BaseFragment extends Fragment {
+    protected final String HTTP_TASK_KEY = "HttpTaskKey_" + hashCode();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,5 +30,11 @@ public class BaseFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onDestroy() {
+        HttpStringClient.getinstance().cancleRequest(HTTP_TASK_KEY);
+        super.onDestroy();
     }
 }

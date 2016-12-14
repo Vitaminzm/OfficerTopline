@@ -11,21 +11,23 @@
     <RadioButton
         android:id="@+id/main_home_r"
         style="@style/FooterRgsStyle"
-        android:drawableTop="@mipmap/ic_launcher"
+        android:drawableTop="@drawable/selector_main_tab_bar_main"
         android:text="@string/main"
-        />
+        android:textColor="@drawable/selector_main_tab_bar_fontcolor"/>
 
     <RadioButton
         android:id="@+id/main_officer_r"
         style="@style/FooterRgsStyle"
-        android:drawableTop="@mipmap/ic_launcher"
+        android:drawableTop="@drawable/selector_main_tab_bar_help"
+        android:textColor="@drawable/selector_main_tab_bar_fontcolor"
         android:text="@string/officer"/>
 
     <RadioButton
         android:id="@+id/main_look_rb"
         style="@style/FooterRgsStyle"
-        android:drawableTop="@mipmap/ic_launcher"
-        android:text="@string/look"/>
+        android:drawableTop="@drawable/selector_main_tab_bar_user"
+        android:textColor="@drawable/selector_main_tab_bar_fontcolor"
+        android:text="@string/mine"/>
 
 
 </RadioGroup>

@@ -4,24 +4,49 @@
     android:orientation="vertical">
 
     <RelativeLayout
+        android:background="@color/themeRed"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/height_ez">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font_size_re"
+            android:layout_centerInParent="true"/>
+
+        <ImageView
+            android:id="@+id/image_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/margin_xz"
+            android:src="@drawable/nav_button_search_nor"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:background="@color/gray"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <ImageView
             android:id="@+id/image_add"
             android:layout_alignParentRight="true"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:src="@mipmap/ic_launcher"/>
+            android:layout_width="@dimen/height_ez"
+            android:layout_height="@dimen/height_ez"
+            android:src="@mipmap/tab_bar_btn_more_nor"/>
         <com.shizhefei.view.indicator.ScrollIndicatorView
             android:layout_toLeftOf="@id/image_add"
             android:id="@+id/home_indicator"
             android:layout_width="match_parent"
-            android:layout_height="45dp" />
+            android:layout_height="@dimen/height_ez" />
     </RelativeLayout>
 
 
     <android.support.v4.view.ViewPager
         android:id="@+id/home_viewPager"
+        android:overScrollMode="never"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
