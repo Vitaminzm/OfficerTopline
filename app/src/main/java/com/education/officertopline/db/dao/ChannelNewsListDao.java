@@ -108,7 +108,7 @@ public class ChannelNewsListDao {
 			valuesgood.put("firstPerson", info.getFirstPerson());
 			valuesgood.put("keyword", info.getKeyword());
 			success = -1;
-			success = db.insert("goods_info", null, valuesgood);
+			success = db.insert("channel_news_list", null, valuesgood);
 			if (success != -1) {
 				count++;
 			}
@@ -120,7 +120,7 @@ public class ChannelNewsListDao {
 		}
 		db.endTransaction();
 		db.close();
-		LogUtil.i("lgs", "addOrderGoodsInfo---" + ret);
+		LogUtil.i("lgs", "addchannel_news_list---" + ret);
 		return ret;
 	}
 

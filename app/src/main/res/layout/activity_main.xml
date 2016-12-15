@@ -5,15 +5,12 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <include android:id="@+id/rl_rg" layout="@layout/widget_foter_layout"/>
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/mian_rgs"
-        />
-
-    <include layout="@layout/widget_foter_layout"/>
-
+        android:layout_above="@id/rl_rg"/>
     <ViewStub
         android:id="@+id/view_stub"
         android:layout_width="match_parent"

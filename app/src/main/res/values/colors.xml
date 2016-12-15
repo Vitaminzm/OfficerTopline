@@ -9,10 +9,12 @@
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
     <color name="gray">#eaeaea</color>
+    <color name="graybg">#b8b8b8</color>
     <color name="deepgray">#8e8e8e</color>
 
     <color name="fontgray">#939292</color>
     <color name="fontblack">#080808</color>
+    <color name="blue">#6899FF</color>
 
 
 

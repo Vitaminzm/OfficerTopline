@@ -55,7 +55,7 @@ public class EducationDBOpenHelper {
 	private static final String CREAT_NEWSLIST_TABLE = "create table " + DATABASE_TABLE_NEWSLIST
 			+ "(_id integer primary key autoincrement, " + ID + " double not null, " + CHANNEL_NAME + " varchar(20) not null, "
 			+ CHANNEL_CODE + " varchar(10) not null, " + NEWS_TYPE+ " varchar(5) not null, "+ TITLE +" varchar(50), "
-			+ PIC +" varchar(200), "+ SRC +" varchar(50), "+ FIRST_TIME + " timespace, " + FIRST_PERSON +" varchar(30), "
+			+ PIC +" varchar(300), "+ SRC +" varchar(50), "+ FIRST_TIME + " timespace, " + FIRST_PERSON +" varchar(30), "
 			+ KEYWORD +" varchar(50), "+ COMMENT_NUM +" double )";
 
 	/**

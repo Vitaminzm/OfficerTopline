@@ -1,33 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RadioGroup
-    android:id="@+id/mian_rgs"
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_alignParentBottom="true"
-    android:orientation="horizontal">
+    android:layout_alignParentBottom="true">
+    <RadioGroup
+        android:id="@+id/mian_rgs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-    <!-- .9图片  selector   shape  -->
-    <RadioButton
-        android:id="@+id/main_home_r"
-        style="@style/FooterRgsStyle"
-        android:drawableTop="@drawable/selector_main_tab_bar_main"
-        android:text="@string/main"
-        android:textColor="@drawable/selector_main_tab_bar_fontcolor"/>
+        <!-- .9图片  selector   shape  -->
+        <RadioButton
+            android:id="@+id/main_home_r"
+            style="@style/FooterRgsStyle"
+            android:drawableTop="@drawable/selector_main_tab_bar_main"
+            android:text="@string/main"
+            android:textSize="@dimen/font_size_tf"
+            android:textColor="@drawable/selector_main_tab_bar_fontcolor"/>
 
-    <RadioButton
-        android:id="@+id/main_officer_r"
-        style="@style/FooterRgsStyle"
-        android:drawableTop="@drawable/selector_main_tab_bar_help"
-        android:textColor="@drawable/selector_main_tab_bar_fontcolor"
-        android:text="@string/officer"/>
+        <RadioButton
+            android:id="@+id/main_officer_r"
+            style="@style/FooterRgsStyle"
+            android:drawableTop="@drawable/selector_main_tab_bar_help"
+            android:textColor="@drawable/selector_main_tab_bar_fontcolor"
+            android:textSize="@dimen/font_size_tf"
+            android:text="@string/officer"/>
 
-    <RadioButton
-        android:id="@+id/main_look_rb"
-        style="@style/FooterRgsStyle"
-        android:drawableTop="@drawable/selector_main_tab_bar_user"
-        android:textColor="@drawable/selector_main_tab_bar_fontcolor"
-        android:text="@string/mine"/>
+        <RadioButton
+            android:id="@+id/main_look_rb"
+            style="@style/FooterRgsStyle"
+            android:drawableTop="@drawable/selector_main_tab_bar_user"
+            android:textColor="@drawable/selector_main_tab_bar_fontcolor"
+            android:textSize="@dimen/font_size_tf"
+            android:text="@string/mine"/>
 
 
-</RadioGroup>
+    </RadioGroup>
+    <View
+        android:background="@color/graybg"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"></View>
+</RelativeLayout>

@@ -2,6 +2,9 @@ package com.jcodecraeer.xrecyclerview;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -13,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +28,7 @@ public class XRecyclerView extends RecyclerView {
     private ArrayList<View> mHeaderViews = new ArrayList<>();
     private WrapAdapter mWrapAdapter;
     private float mLastY = -1;
-    private static final float DRAG_RATE = 1.5f;
+    private static final float DRAG_RATE = 1.8f;
     private LoadingListener mLoadingListener;
     private ArrowRefreshHeader mRefreshHeader;
     private boolean pullRefreshEnabled = true;
@@ -66,9 +70,19 @@ public class XRecyclerView extends RecyclerView {
         mFootView.setVisibility(GONE);
     }
 
+    public void setFootViewText(String loading, String noMore) {
+        if(mFootView instanceof LoadingMoreFooter){
+            ((LoadingMoreFooter) mFootView).setLoadingHint(loading);
+            ((LoadingMoreFooter) mFootView).setNoMoreHint(noMore);
+        }
+    }
+
     public void addHeaderView(View view) {
         sHeaderTypes.add(HEADER_INIT_INDEX + mHeaderViews.size());
         mHeaderViews.add(view);
+        if (mWrapAdapter != null) {
+            mWrapAdapter.notifyDataSetChanged();
+        }
     }
 
     public int getHeaderViewCount(){
@@ -119,6 +133,12 @@ public class XRecyclerView extends RecyclerView {
         }
     }
 
+    public void refresh() {
+        if (pullRefreshEnabled && mLoadingListener != null) {
+            mRefreshHeader.setState(ArrowRefreshHeader.STATE_REFRESHING);
+            mLoadingListener.onRefresh();
+        }
+    }
     public void reset(){
         setNoMore(false);
         loadMoreComplete();
@@ -183,6 +203,33 @@ public class XRecyclerView extends RecyclerView {
         super.setAdapter(mWrapAdapter);
         adapter.registerAdapterDataObserver(mDataObserver);
         mDataObserver.onChanged();
+    }
+
+    //避免用户自己调用getAdapter() 引起的ClassCastException
+    @Override
+    public Adapter getAdapter() {
+        if(mWrapAdapter != null)
+            return mWrapAdapter.getOriginalAdapter();
+        else
+            return null;
+    }
+
+    @Override
+    public void setLayoutManager(LayoutManager layout) {
+        super.setLayoutManager(layout);
+        if(mWrapAdapter != null){
+            if (layout instanceof GridLayoutManager) {
+                final GridLayoutManager gridManager = ((GridLayoutManager) layout);
+                gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                    @Override
+                    public int getSpanSize(int position) {
+                        return (mWrapAdapter.isHeader(position) || mWrapAdapter.isFooter(position) || mWrapAdapter.isRefreshHeader(position))
+                                ? gridManager.getSpanCount() : 1;
+                    }
+                });
+
+            }
+        }
     }
 
     @Override
@@ -267,25 +314,22 @@ public class XRecyclerView extends RecyclerView {
     private class DataObserver extends RecyclerView.AdapterDataObserver {
         @Override
         public void onChanged() {
-            Adapter<?> adapter = getAdapter();
-            if (adapter != null && mEmptyView != null) {
-                int emptyCount = 0;
-                if (pullRefreshEnabled) {
-                    emptyCount++;
-                }
+            if (mWrapAdapter != null) {
+                mWrapAdapter.notifyDataSetChanged();
+            }
+            if (mWrapAdapter != null && mEmptyView != null) {
+                int emptyCount = 1 + mWrapAdapter.getHeadersCount();
                 if (loadingMoreEnabled) {
                     emptyCount++;
                 }
-                if (adapter.getItemCount() == emptyCount) {
+                if (mWrapAdapter.getItemCount() == emptyCount) {
                     mEmptyView.setVisibility(View.VISIBLE);
                     XRecyclerView.this.setVisibility(View.GONE);
                 } else {
+
                     mEmptyView.setVisibility(View.GONE);
                     XRecyclerView.this.setVisibility(View.VISIBLE);
                 }
-            }
-            if (mWrapAdapter != null) {
-                mWrapAdapter.notifyDataSetChanged();
             }
         }
 
@@ -315,12 +359,16 @@ public class XRecyclerView extends RecyclerView {
         }
     };
 
-    public class WrapAdapter extends RecyclerView.Adapter<ViewHolder> {
+    private class WrapAdapter extends RecyclerView.Adapter<ViewHolder> {
 
         private RecyclerView.Adapter adapter;
 
         public WrapAdapter(RecyclerView.Adapter adapter) {
             this.adapter = adapter;
+        }
+
+        public RecyclerView.Adapter getOriginalAdapter(){
+            return this.adapter;
         }
 
         public boolean isHeader(int position) {
@@ -356,7 +404,7 @@ public class XRecyclerView extends RecyclerView {
         }
 
         @Override
-        public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             if (isHeader(position) || isRefreshHeader(position)) {
                 return;
             }
@@ -366,7 +414,26 @@ public class XRecyclerView extends RecyclerView {
                 adapterCount = adapter.getItemCount();
                 if (adjPosition < adapterCount) {
                     adapter.onBindViewHolder(holder, adjPosition);
-                    return;
+                }
+            }
+        }
+        // some times we need to override this
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position,List<Object> payloads) {
+            if (isHeader(position) || isRefreshHeader(position)) {
+                return;
+            }
+            int adjPosition = position - (getHeadersCount() + 1);
+            int adapterCount;
+            if (adapter != null) {
+                adapterCount = adapter.getItemCount();
+                if (adjPosition < adapterCount) {
+                    if(payloads.isEmpty()){
+                        adapter.onBindViewHolder(holder, adjPosition);
+                    }
+                    else{
+                        adapter.onBindViewHolder(holder, adjPosition,payloads);
+                    }
                 }
             }
         }
@@ -391,9 +458,6 @@ public class XRecyclerView extends RecyclerView {
         @Override
         public int getItemViewType(int position) {
             int adjPosition = position - (getHeadersCount() + 1);
-            if(isReservedItemViewType(adapter.getItemViewType(adjPosition))) {
-                throw new IllegalStateException("XRecyclerView require itemViewType in adapter should be less than 10000 " );
-            }
             if (isRefreshHeader(position)) {
                 return TYPE_REFRESH_HEADER;
             }
@@ -404,12 +468,15 @@ public class XRecyclerView extends RecyclerView {
             if (isFooter(position)) {
                 return TYPE_FOOTER;
             }
-
             int adapterCount;
             if (adapter != null) {
                 adapterCount = adapter.getItemCount();
                 if (adjPosition < adapterCount) {
-                    return adapter.getItemViewType(adjPosition);
+                    int type =  adapter.getItemViewType(adjPosition);
+                    if(isReservedItemViewType(type)) {
+                        throw new IllegalStateException("XRecyclerView require itemViewType in adapter should be less than 10000 " );
+                    }
+                    return type;
                 }
             }
             return 0;
@@ -563,6 +630,117 @@ public class XRecyclerView extends RecyclerView {
                         appbarState = state;
                     }
                 });
+            }
+        }
+    }
+
+    public class DividerItemDecoration extends RecyclerView.ItemDecoration {
+
+        private Drawable mDivider;
+        private int mOrientation;
+
+        /**
+         * Sole constructor. Takes in a {@link Drawable} to be used as the interior
+         * divider.
+         *
+         * @param divider A divider {@code Drawable} to be drawn on the RecyclerView
+         */
+        public DividerItemDecoration(Drawable divider) {
+            mDivider = divider;
+        }
+
+        /**
+         * Draws horizontal or vertical dividers onto the parent RecyclerView.
+         *
+         * @param canvas The {@link Canvas} onto which dividers will be drawn
+         * @param parent The RecyclerView onto which dividers are being added
+         * @param state The current RecyclerView.State of the RecyclerView
+         */
+        @Override
+        public void onDraw(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
+            if (mOrientation == LinearLayoutManager.HORIZONTAL) {
+                drawHorizontalDividers(canvas, parent);
+            } else if (mOrientation == LinearLayoutManager.VERTICAL) {
+                drawVerticalDividers(canvas, parent);
+            }
+        }
+
+        /**
+         * Determines the size and location of offsets between items in the parent
+         * RecyclerView.
+         *
+         * @param outRect The {@link Rect} of offsets to be added around the child
+         *                view
+         * @param view The child view to be decorated with an offset
+         * @param parent The RecyclerView onto which dividers are being added
+         * @param state The current RecyclerView.State of the RecyclerView
+         */
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+
+            if (parent.getChildAdapterPosition(view) <= mWrapAdapter.getHeadersCount() + 1) {
+                return;
+            }
+            mOrientation = ((LinearLayoutManager) parent.getLayoutManager()).getOrientation();
+            if (mOrientation == LinearLayoutManager.HORIZONTAL) {
+                outRect.left = mDivider.getIntrinsicWidth();
+            } else if (mOrientation == LinearLayoutManager.VERTICAL) {
+                outRect.top = mDivider.getIntrinsicHeight();
+            }
+        }
+
+        /**
+         * Adds dividers to a RecyclerView with a LinearLayoutManager or its
+         * subclass oriented horizontally.
+         *
+         * @param canvas The {@link Canvas} onto which horizontal dividers will be
+         *               drawn
+         * @param parent The RecyclerView onto which horizontal dividers are being
+         *               added
+         */
+        private void drawHorizontalDividers(Canvas canvas, RecyclerView parent) {
+            int parentTop = parent.getPaddingTop();
+            int parentBottom = parent.getHeight() - parent.getPaddingBottom();
+
+            int childCount = parent.getChildCount();
+            for (int i = 0; i < childCount - 1; i++) {
+                View child = parent.getChildAt(i);
+
+                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+
+                int parentLeft = child.getRight() + params.rightMargin;
+                int parentRight = parentLeft + mDivider.getIntrinsicWidth();
+
+                mDivider.setBounds(parentLeft, parentTop, parentRight, parentBottom);
+                mDivider.draw(canvas);
+            }
+        }
+
+        /**
+         * Adds dividers to a RecyclerView with a LinearLayoutManager or its
+         * subclass oriented vertically.
+         *
+         * @param canvas The {@link Canvas} onto which vertical dividers will be
+         *               drawn
+         * @param parent The RecyclerView onto which vertical dividers are being
+         *               added
+         */
+        private void drawVerticalDividers(Canvas canvas, RecyclerView parent) {
+            int parentLeft = parent.getPaddingLeft();
+            int parentRight = parent.getWidth() - parent.getPaddingRight();
+
+            int childCount = parent.getChildCount();
+            for (int i = 0; i < childCount - 1; i++) {
+                View child = parent.getChildAt(i);
+
+                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+
+                int parentTop = child.getBottom() + params.bottomMargin;
+                int parentBottom = parentTop + mDivider.getIntrinsicHeight();
+
+                mDivider.setBounds(parentLeft, parentTop, parentRight, parentBottom);
+                mDivider.draw(canvas);
             }
         }
     }

@@ -19,13 +19,26 @@ public class LoadingMoreFooter extends LinearLayout {
     public final static int STATE_COMPLETE = 1;
     public final static int STATE_NOMORE = 2;
     private TextView mText;
-
+    private String loadingHint;
+    private String noMoreHint;
+    private String loadingDoneHint;
 
 	public LoadingMoreFooter(Context context) {
 		super(context);
 		initView();
 	}
 
+    public void setLoadingHint(String hint) {
+        loadingHint = hint;
+    }
+
+    public void setNoMoreHint(String hint) {
+        noMoreHint = hint;
+    }
+
+    public void setLoadingDoneHint(String hint) {
+        loadingDoneHint = hint;
+    }
 	/**
 	 * @param context
 	 * @param attrs
@@ -50,7 +63,9 @@ public class LoadingMoreFooter extends LinearLayout {
         addView(progressCon);
         mText = new TextView(getContext());
         mText.setText("正在加载...");
-
+        loadingHint = (String)getContext().getText(R.string.listview_loading);
+        noMoreHint = (String)getContext().getText(R.string.nomore_loading);
+        loadingDoneHint = (String)getContext().getText(R.string.loading_done);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutParams.setMargins( (int)getResources().getDimension(R.dimen.textandiconmargin),0,0,0 );
 
@@ -73,15 +88,15 @@ public class LoadingMoreFooter extends LinearLayout {
         switch(state) {
             case STATE_LOADING:
                 progressCon.setVisibility(View.VISIBLE);
-                mText.setText(getContext().getText(R.string.listview_loading));
+                mText.setText(loadingHint);
                 this.setVisibility(View.VISIBLE);
-                    break;
+                break;
             case STATE_COMPLETE:
-                mText.setText(getContext().getText(R.string.listview_loading));
+                mText.setText(loadingDoneHint);
                 this.setVisibility(View.GONE);
                 break;
             case STATE_NOMORE:
-                mText.setText(getContext().getText(R.string.nomore_loading));
+                mText.setText(noMoreHint);
                 progressCon.setVisibility(View.GONE);
                 this.setVisibility(View.VISIBLE);
                 break;

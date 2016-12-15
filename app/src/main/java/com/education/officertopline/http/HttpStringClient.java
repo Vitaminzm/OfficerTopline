@@ -1,5 +1,9 @@
 package com.education.officertopline.http;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+
 import com.education.officertopline.R;
 import com.education.officertopline.app.ConstantData;
 import com.education.officertopline.app.MyApplication;
@@ -13,6 +17,7 @@ import com.google.gson.JsonSyntaxException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -66,6 +71,48 @@ public class HttpStringClient {
 		}
 		return httpStringRequest;
 	}
+	private static final int CALLBACK_SUCCESSFUL=0x01;
+	private static final int CALLBACK_FAILED=0x02;
+	private static final int CALLBACK_FINISH=0x03;
+	static class UIHandler<T> extends Handler {
+		private WeakReference mWeakReference;
+		public UIHandler(HttpActionHandle<T> httpactionhandler){
+			super(Looper.getMainLooper());
+			mWeakReference=new WeakReference(httpactionhandler);
+		}
+
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what){
+				case CALLBACK_SUCCESSFUL: {
+					T t = (T) msg.obj;
+					HttpActionHandle httpactionhandler = (HttpActionHandle) mWeakReference.get();
+					if (httpactionhandler != null) {
+						httpactionhandler.handleActionSuccess(null, t);
+					}
+					break;
+				}
+				case CALLBACK_FAILED: {
+					String e = (String) msg.obj;
+					HttpActionHandle httpactionhandler = (HttpActionHandle) mWeakReference.get();
+					if (httpactionhandler != null) {
+						httpactionhandler.handleActionError(null, e);
+					}
+					break;
+				}
+				case CALLBACK_FINISH: {
+					HttpActionHandle httpactionhandler = (HttpActionHandle) mWeakReference.get();
+					if (httpactionhandler != null) {
+						httpactionhandler.handleActionFinish();
+					}
+					break;
+				}
+				default:
+					super.handleMessage(msg);
+					break;
+			}
+		}
+	}
 
 	/**
 	 * 获取请求队列
@@ -105,7 +152,8 @@ public class HttpStringClient {
 		httpactionhandler.handleActionStart();
 
 		Map<String, String> param = new HashMap<>();
-		param.put("gladEyeKey", "rO0ABXQAD1YawoQ8w5h2QsK8ekYrOA==");//SpSaveUtils.read(MyApplication.context, ConstantData.LOGIN_TOKEN, "")
+		if(SpSaveUtils.read(MyApplication.context, ConstantData.LOGIN_TOKEN, "") != "")
+			param.put("gladEyeKey", SpSaveUtils.read(MyApplication.context, ConstantData.LOGIN_TOKEN, ""));
 		if(map != null){
 			param.put("params", GsonUtil.beanToJson(map));
 		}
@@ -125,25 +173,33 @@ public class HttpStringClient {
 		requestPost(url, param, request, new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
+				UIHandler handler = new UIHandler(httpactionhandler);
+				Message message=Message.obtain();
 				e.printStackTrace();
 				Boolean ret = false;
 				LogUtil.i("lgs", "======================" + e.getCause() + "---" + e.getMessage());
 				if(e.getMessage() != null){
 					if (e.getMessage().contains("Failed to connect to") || e.getMessage().contains("failed to connect to")){
 						ret = true;
-						httpactionhandler.handleActionError(actionname, "网络连接超时");
+						message.what=CALLBACK_FAILED;
+						message.obj = "网络连接超时";
+						handler.sendMessage(message);
 					}else{
-						httpactionhandler.handleActionError(actionname, e.getMessage());
+						message.what=CALLBACK_FAILED;
+						message.obj = e.getMessage();
+						handler.sendMessage(message);
 					}
 				}else{
 					httpactionhandler.handleActionError(actionname, "网络连接异常！");
 				}
-				httpactionhandler.handleActionFinish();
+				handler.sendEmptyMessage(CALLBACK_FINISH);
 			}
 
 			@Override
 			public void onResponse(Call call, Response response) throws IOException {
 				T result = null;
+				UIHandler handler = new UIHandler(httpactionhandler);
+				Message message=Message.obtain();
 				LogUtil.i("lgs", response.code()+response.message());
 				if(response != null && response.code()== 200){
 					try {
@@ -151,30 +207,45 @@ public class HttpStringClient {
 						LogUtil.i("lgs", "response==========" +re);
 						result = gson.fromJson(re, clz);
 						if(result != null){
-							if(((BaseResult) result).getCode()!= null)
-								httpactionhandler.handleActionSuccess(actionname, result);
+							if(((BaseResult) result).getCode()!= null){
+								message.what=CALLBACK_SUCCESSFUL;
+								message.obj=result;
+								handler.sendMessage(message);
+							}
 							else{
-								httpactionhandler.handleActionError(actionname, MyApplication.context.getString(R.string.exception_opt));
+								message.what=CALLBACK_FAILED;
+								message.obj = MyApplication.context.getString(R.string.exception_opt);
+								handler.sendMessage(message);
 							}
 						}else{
-							httpactionhandler.handleActionError(actionname, MyApplication.context.getString(R.string.exception_opt));
+							message.what=CALLBACK_FAILED;
+							message.obj = MyApplication.context.getString(R.string.exception_opt);
+							handler.sendMessage(message);
 						}
 
 				} catch (JsonSyntaxException e) {
-					httpactionhandler.handleActionError(actionname, MyApplication.context.getString(R.string.exception_opt));
+						message.what=CALLBACK_FAILED;
+						message.obj = MyApplication.context.getString(R.string.exception_opt);
+						handler.sendMessage(message);
 					e.printStackTrace();
 				} catch (JsonParseException e) {
-					httpactionhandler.handleActionError(actionname, MyApplication.context.getString(R.string.exception_opt));
-					e.printStackTrace();
+						message.what=CALLBACK_FAILED;
+						message.obj = MyApplication.context.getString(R.string.exception_opt);
+						handler.sendMessage(message);
+						e.printStackTrace();
 				} catch (IOException e) {
-					httpactionhandler.handleActionError(actionname, MyApplication.context.getString(R.string.exception_opt));
-					e.printStackTrace();
+						message.what=CALLBACK_FAILED;
+						message.obj = MyApplication.context.getString(R.string.exception_opt);
+						handler.sendMessage(message);
+						e.printStackTrace();
 				}
-					httpactionhandler.handleActionFinish();
+					handler.sendEmptyMessage(CALLBACK_FINISH);
 				}else{
 					LogUtil.i("lgs", "response====fffff======");
-					httpactionhandler.handleActionError(actionname, response.message());
-					httpactionhandler.handleActionFinish();
+					message.what=CALLBACK_FAILED;
+					message.obj = response.code()+response.message();
+					handler.sendMessage(message);
+					handler.sendEmptyMessage(CALLBACK_FINISH);
 				}
 
 			}

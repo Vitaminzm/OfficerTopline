@@ -30,7 +30,7 @@
             android:layout_gravity="center"
             android:layout_weight ="1"
             android:layout_width="0dp"
-            android:layout_marginLeft="10dip"
+            android:layout_marginLeft="@dimen/margin_oz"
             android:layout_height="@dimen/height_ofe"
             android:src="@mipmap/ic_launcher"/>
         <ImageView
@@ -38,7 +38,7 @@
             android:layout_gravity="center"
             android:layout_weight ="1"
             android:layout_width="0dp"
-            android:layout_marginLeft="10dip"
+            android:layout_marginLeft="@dimen/margin_oz"
             android:layout_height="@dimen/height_ofe"
             android:src="@mipmap/ic_launcher"/>
     </LinearLayout>

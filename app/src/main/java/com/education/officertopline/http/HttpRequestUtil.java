@@ -45,7 +45,7 @@ public class HttpRequestUtil {
 	 * @param httpactionhandler
 	 */
 	public <T> void getToplineNewsList(String tag, Map<String, String> param, final Class<T> clz, final HttpActionHandle<T> httpactionhandler) {
-		HttpStringClient.getinstance().getForObject(tag, getUrl("officer_topline_core/toplineChannelController/getToplineNewsList"), param, clz,
+		HttpStringClient.getinstance().getForObject(tag, getUrl("officer_topline_core/toplineNewsController/getToplineNewsList"), param, clz,
 				httpactionhandler);
 	}
 

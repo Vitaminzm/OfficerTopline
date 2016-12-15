@@ -82,7 +82,7 @@ public class HomeFragment extends BaseFragment {
                 default:
                     break;
             }
-        };
+        }
     };
 
     @Override
@@ -233,7 +233,6 @@ public class HomeFragment extends BaseFragment {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             //得到缓存的fragment
-            LogUtil.i("lgs","instantiateItem:"+position);
             Fragment fragment = (Fragment)super.instantiateItem(container, position);
 ////            //得到tag ❶
 //            String fragmentTag = fragment.getTag();
@@ -276,36 +275,29 @@ public class HomeFragment extends BaseFragment {
             channelList.addAll(dataList);
             myIndicatorAdapter.notifyDataSetChanged();
             myFragmentPagerAdapter.notifyDataSetChanged();
-        }else{
-            ToplineChannelInfo i= new ToplineChannelInfo();
-            i.setChannelCode("1");
-            i.setChannelName("测试");
-            channelList.add(i);
-            ToplineChannelInfo i1= new ToplineChannelInfo();
-            i1.setChannelCode("2");
-            i1.setChannelName("测试2");
-            channelList.add(i1);
-            myIndicatorAdapter.notifyDataSetChanged();
-            myFragmentPagerAdapter.notifyDataSetChanged();
-//            HttpRequestUtil.getinstance().getToplineChannel(HTTP_TASK_KEY, null, ToplineChannelListResult.class, new HttpActionHandle<ToplineChannelListResult>() {
-//                @Override
-//                public void handleActionError(String actionName, String errmsg) {
-//
-//                }
-//
-//                @Override
-//                public void handleActionSuccess(String actionName, ToplineChannelListResult result) {
-//                    if(ConstantData.HTTP_RESPONSE_OK.equals(result.getCode())){
-//                        if(result.getList()!= null && result.getList().size() > 0){
-//                            channelList.addAll(result.getList());
-//                            myIndicatorAdapter.notifyDataSetChanged();
-//                            myFragmentPagerAdapter.notifyDataSetChanged();
-//                        }
-//                    }else{
-//                        ToastUtils.sendtoastbyhandler(handler,result.getMsg());
-//                    }
-//                }
-//            });
+        }{
+            HttpRequestUtil.getinstance().getToplineChannel(HTTP_TASK_KEY, null, ToplineChannelListResult.class, new HttpActionHandle<ToplineChannelListResult>() {
+                @Override
+                public void handleActionError(String actionName, String errmsg) {
+                    ToastUtils.sendtoastbyhandler(handler,errmsg);
+                }
+
+                @Override
+                public void handleActionSuccess(String actionName, ToplineChannelListResult result) {
+                    if(ConstantData.HTTP_RESPONSE_OK.equals(result.getCode())){
+                        if(result.getList()!= null && result.getList().size() > 0){
+                            if(!channelList.containsAll(result.getList())){
+                                SpSaveUtils.saveObject(getActivity().getApplicationContext(), ConstantData.TOPLINE_CHANNEL_LIST, result.getList());
+                                channelList.addAll(result.getList());
+                                myIndicatorAdapter.notifyDataSetChanged();
+                                myFragmentPagerAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    }else{
+                        ToastUtils.sendtoastbyhandler(handler,result.getMsg());
+                    }
+                }
+            });
         }
 
     }

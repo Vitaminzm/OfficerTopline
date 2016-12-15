@@ -13,5 +13,11 @@
         android:textSize="@dimen/font_size_rt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
-    <include  layout="@layout/item_footer" />
+    <FrameLayout
+        android:layout_marginTop="@dimen/margin_ov"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <include  layout="@layout/item_footer" />
+    </FrameLayout>
+
 </LinearLayout>

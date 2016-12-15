@@ -19,7 +19,7 @@ import butterknife.ButterKnife;
 /**
  * Created by jianghejie on 15/11/26.
  */
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
+public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolders> {
     public ArrayList<String> datas = null;
     private static MyItemLongClickListener mItemLongClickListener;
     private static MyItemClickListener mItemClickListener;
@@ -37,26 +37,26 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         notifyItemRemoved(position + 1 + position2);
     }
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public ViewHolders onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item,viewGroup,false);
-        return new ViewHolder(view, mItemClickListener);
+        return new ViewHolders(view, mItemClickListener);
     }
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(ViewHolders viewHolder, int position) {
         viewHolder.mTextView.setText(datas.get(position));
     }
     @Override
     public int getItemCount() {
         return datas.size();
     }
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener {
+    public static class ViewHolders extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener {
         @Bind(R.id.text) TextView mTextView;
         private MyItemClickListener mListener;
-        public ViewHolder(View view, MyItemClickListener listener){
+        public ViewHolders(View view, MyItemClickListener listener){
             super(view);
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
-            ButterKnife.bind(this, view);//framgent
+            ButterKnife.bind(this, view);
             mListener = listener;
         }
 

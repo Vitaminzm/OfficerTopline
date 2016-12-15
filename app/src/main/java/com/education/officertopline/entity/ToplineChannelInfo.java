@@ -26,4 +26,15 @@ public class ToplineChannelInfo implements Serializable {
     public void setChannelName(String channelName) {
         this.channelName = channelName;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        ToplineChannelInfo tmp = (ToplineChannelInfo)obj;
+        return this.channelName.equals(tmp.channelName);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.channelCode.hashCode();
+    }
 }
